@@ -1,25 +1,27 @@
-import {database} from "@/db/database"
-import { bids as bidsSchema } from "@/db/schema";
+"use client"
 
-export default async function Home() {
-  const bids = await database.query.bids.findMany()
+import { useState } from "react";
+import { signup } from "./actions/auth.actions";
+
+export default function Home() {
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+
+  const handleSubmit = async () => {
+    const res = await signup({username, password})
+
+    console.log(res.data)
+
+    console.log(res.error)
+  }
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <form action={async (formData: FormData) => {
-        'use server'
-        await database.insert(bidsSchema).values({
-          amount: 5,
-          timestamp: new Date()
-        })
-      }}>
-        <input type="text" name="bid" placeholder="bid" />
+      <form onSubmit={(e) => {e.preventDefault(); handleSubmit()}}>
+        <input type="text" name="username" placeholder="username" value={username} onChange={(e) => setUsername(e.currentTarget.value)} className="text-black" />
+        <input type="text" name="password" placeholder="password" value={password} onChange={(e) => setPassword(e.currentTarget.value)} className="text-black" />
         <button type="submit">Submit</button>
       </form>
-
-      {bids.map((bid) => (
-        <div key={bid.id}>{bid.id}</div>
-      ))}
     </main>
   );
 }

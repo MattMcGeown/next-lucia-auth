@@ -1,7 +1,25 @@
-import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
+import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import db from "./database";
 
-export const bids = pgTable("nla_bids", {
-  id: serial("id").primaryKey(),
-  amount: integer("amount").notNull(),
-  timestamp: timestamp("timestamp", { mode: "date" }).notNull(),
+export const userTable = pgTable("user", {
+	id: text("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
+  googleId: text("google_id").unique()
 });
+
+export const sessionTable = pgTable("session", {
+	id: text("id").primaryKey(),
+	userId: text("user_id")
+		.notNull()
+		.references(() => userTable.id),
+	expiresAt: timestamp("expires_at", {
+		withTimezone: true,
+		mode: "date"
+	}).notNull()
+});
+
+const adapter = new DrizzlePostgreSQLAdapter(db, sessionTable, userTable);
+
+export default adapter
