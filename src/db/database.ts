@@ -34,6 +34,6 @@ import * as schema from "./schema"
 const pool = new pg.Pool({
   connectionString: env.DATABASE_URL
 });
-const db = drizzle(pool, {schema}) as NodePgDatabase<typeof schema>;
+const db = drizzle(pool, {schema}) as NodePgDatabase<typeof schema>
 
 export default db
