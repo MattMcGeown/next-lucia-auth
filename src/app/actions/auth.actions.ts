@@ -1,6 +1,6 @@
 "use server"
 
-import { lucia } from "@/auth"
+import { lucia, validateRequest } from "@/auth"
 import db from "@/db/database"
 import { userTable } from "@/db/schema"
 import { eq } from "drizzle-orm"
@@ -67,5 +67,27 @@ export const signin = async ({username, password}: signupschema) => {
 
   return {
     success: 'Logged in',
+  }
+}
+
+export const signout = async () => {
+  try {
+    const {session} = await validateRequest()
+
+    if (!session) {
+      return {
+        error: 'Unauthorized'
+      }
+    }
+
+    await lucia.invalidateSession(session.id)
+
+    const sessionCookie = lucia.createBlankSessionCookie()
+
+    cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
+  } catch (error: any) {
+    return {
+      error: error?.message
+    }
   }
 }
